@@ -10,6 +10,8 @@ public class Activator : MonoBehaviour
     bool active =false;
     GameObject note;
     Color old;
+    public bool createMode;
+    public GameObject n;
 
     void Awake()
     {
@@ -25,16 +27,23 @@ public class Activator : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(key))
+        if (createMode)
         {
-            StartCoroutine(Pressed());
-        }
+            if (Input.GetKeyDown(key))
+                Instantiate(n, transform.position, Quaternion.identity);
+        }else{
 
-        if (Input.GetKeyDown(key) && active)
-        {
-            Destroy(note);
-            AddScore();
-            active = false;
+            if (Input.GetKeyDown(key))
+            {
+                StartCoroutine(Pressed());
+            }
+
+            if (Input.GetKeyDown(key) && active)
+            {
+                Destroy(note);
+                AddScore();
+                active = false;
+            }
         }
     }
 
