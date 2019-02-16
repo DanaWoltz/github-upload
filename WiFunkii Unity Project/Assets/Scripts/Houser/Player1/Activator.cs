@@ -8,10 +8,11 @@ public class Activator : MonoBehaviour
     SpriteRenderer sr;
     public KeyCode key;
     bool active =false;
-    GameObject note;
+    GameObject note,gm;
     Color old;
     public bool createMode;
     public GameObject n;
+    
 
     void Awake()
     {
@@ -21,6 +22,7 @@ public class Activator : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        gm = GameObject.Find("GameManager");
         old = sr.color;
     }
 
@@ -41,8 +43,13 @@ public class Activator : MonoBehaviour
             if (Input.GetKeyDown(key) && active)
             {
                 Destroy(note);
+                gm.GetComponent<GameManager>().AddStreak();
                 AddScore();
                 active = false;
+            } else if (Input.GetKeyDown(key) && !active)
+            {
+                gm.GetComponent<GameManager>().ResetStreak();
+                RemoveScore();
             }
         }
     }
@@ -57,11 +64,17 @@ public class Activator : MonoBehaviour
     void OnTriggerExit2D(Collider2D col)
     {
         active = false;
+        gm.GetComponent<GameManager>().ResetStreak();
     }
 
     void AddScore()
     {
-        PlayerPrefs.SetInt("Score", PlayerPrefs.GetInt("Score") + 100);
+        PlayerPrefs.SetInt("Score", PlayerPrefs.GetInt("Score") + gm.GetComponent<GameManager>().GetScore());
+    }
+
+    void RemoveScore()
+    {
+        PlayerPrefs.SetInt("Score", PlayerPrefs.GetInt("Score") -100);
     }
 
     IEnumerator Pressed()

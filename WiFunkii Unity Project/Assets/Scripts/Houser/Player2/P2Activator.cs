@@ -8,8 +8,11 @@ public class P2Activator : MonoBehaviour
     SpriteRenderer sr;
     public KeyCode key;
     bool active = false;
-    GameObject note;
+    GameObject note, gm;
     Color old;
+    public bool createMode;
+    public GameObject n;
+
 
     void Awake()
     {
@@ -19,22 +22,38 @@ public class P2Activator : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        gm = GameObject.Find("GameManager");
         old = sr.color;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(key))
+        if (createMode)
         {
-            StartCoroutine(Pressed());
+            if (Input.GetKeyDown(key))
+                Instantiate(n, transform.position, Quaternion.identity);
         }
-
-        if (Input.GetKeyDown(key) && active)
+        else
         {
-            Destroy(note);
-            AddScore();
-            active = false;
+
+            if (Input.GetKeyDown(key))
+            {
+                StartCoroutine(Pressed());
+            }
+
+            if (Input.GetKeyDown(key) && active)
+            {
+                Destroy(note);
+                gm.GetComponent<GameManager>().AddStreak();
+                AddScore();
+                active = false;
+            }
+            else if (Input.GetKeyDown(key) && !active)
+            {
+                gm.GetComponent<GameManager>().ResetStreak();
+                RemoveScore();
+            }
         }
     }
 
@@ -48,11 +67,17 @@ public class P2Activator : MonoBehaviour
     void OnTriggerExit2D(Collider2D col)
     {
         active = false;
+        gm.GetComponent<GameManager>().ResetStreak();
     }
 
     void AddScore()
     {
-        PlayerPrefs.SetInt("Score2", PlayerPrefs.GetInt("Score2") + 100);
+        PlayerPrefs.SetInt("Score2", PlayerPrefs.GetInt("Score2") + gm.GetComponent<GameManager>().GetScore());
+    }
+
+    void RemoveScore()
+    {
+        PlayerPrefs.SetInt("Score2", PlayerPrefs.GetInt("Score2") - 100);
     }
 
     IEnumerator Pressed()
@@ -62,5 +87,6 @@ public class P2Activator : MonoBehaviour
         yield return new WaitForSeconds(0.05f);
         sr.color = old;
     }
+
 
 }
